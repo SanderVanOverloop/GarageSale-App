@@ -11,8 +11,12 @@
   <div class="content">
     <div class="left-side">
       <h1>Garage Sale Address Mapper</h1>
+      <label for="startPointInput">Starting Point Address:</label>
+      <input type="text" id="startPointInput" placeholder="e.g. 1 randomstraat, hasselt, 3500, Belgium" style="width: 100%; margin-bottom: 10px;" />
       <input type="file" id="csvFileInput" accept=".csv" />
+      <button id="showRouteBtn" style="margin-top: 10px;">Show Route on Map</button>
       <div id="map" style="height: 500px; margin-top: 20px;"></div>
+      <div id="routeOverview" style="margin-top: 20px;"></div>
     </div>
   </div>
 </main>
