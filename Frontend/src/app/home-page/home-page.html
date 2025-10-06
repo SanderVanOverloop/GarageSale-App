@@ -10,23 +10,29 @@
       <p class="text-[#FA812F] text-center">Upload addresses and map your garage sale route efficiently.</p>
       <a routerLink="/addmap" class="mt-2 px-6 py-2 bg-[#DD0303] hover:bg-[#FA812F] text-white font-bold rounded-lg shadow transition text-lg">Go to Add Route</a>
     </div>
-    <!-- Placeholder Card 1 -->
-    <div class="bg-white border-2 border-[#FAB12F] rounded-2xl shadow-xl flex flex-col items-center p-8 gap-4 opacity-80">
-      <div class="w-16 h-16 flex items-center justify-center rounded-full bg-[#FEF3E2] border-2 border-[#FAB12F] mb-2">
-        <svg class="w-10 h-10 text-[#FA812F]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h8"/></svg>
+
+    <!-- Saved Routes -->
+    @for (route of savedRoutes; track route.id) {
+      <div (click)="openRoute(route.id)" class="bg-white border-2 border-[#FAB12F] rounded-2xl shadow-xl flex flex-col p-6 gap-3 cursor-pointer hover:bg-[#FEF3E2] transition-colors relative">
+        <button (click)="deleteRoute(route.id, $event)" class="absolute top-3 right-3 w-8 h-8 flex items-center justify-center rounded-full bg-red-100 hover:bg-red-200 text-red-600 transition">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+        <div class="w-12 h-12 flex items-center justify-center rounded-full bg-[#FEF3E2] border-2 border-[#FAB12F] mb-2">
+          <svg class="w-6 h-6 text-[#DD0303]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-1.447-.894L15 4m0 13V4m0 0L9 7"/></svg>
+        </div>
+        <h3 class="text-lg font-bold text-[#DD0303] pr-8">{{ route.name }}</h3>
+        <p class="text-[#FA812F] text-sm">Start: {{ route.startAddress }}</p>
+        <p class="text-[#FAB12F] text-xs">{{ route.routeOrder.length }} stops • Created {{ formatDate(route.createdAt) }}</p>
+        <p class="text-[#FA812F] text-sm font-medium mt-2">Click to open route</p>
       </div>
-      <h2 class="text-2xl font-bold text-[#FA812F]">Coming Soon</h2>
-      <p class="text-[#FA812F] text-center">More features will be available here soon.</p>
-      <button class="mt-2 px-6 py-2 bg-[#FAB12F] text-white font-bold rounded-lg shadow text-lg cursor-not-allowed" disabled>Coming Soon</button>
-    </div>
-    <!-- Placeholder Card 2 -->
-    <div class="bg-white border-2 border-[#FAB12F] rounded-2xl shadow-xl flex flex-col items-center p-8 gap-4 opacity-80">
-      <div class="w-16 h-16 flex items-center justify-center rounded-full bg-[#FEF3E2] border-2 border-[#FAB12F] mb-2">
-        <svg class="w-10 h-10 text-[#FA812F]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="5" rx="2"/><path stroke-linecap="round" stroke-linejoin="round" d="M2 7h20"/></svg>
+    } @empty {
+      <div class="bg-white border-2 border-[#FAB12F] rounded-2xl shadow-xl flex flex-col items-center p-8 gap-4 opacity-80">
+        <div class="w-16 h-16 flex items-center justify-center rounded-full bg-[#FEF3E2] border-2 border-[#FAB12F] mb-2">
+          <svg class="w-10 h-10 text-[#FA812F]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 013.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-1.447-.894L15 4m0 13V4m0 0L9 7"/></svg>
+        </div>
+        <h2 class="text-2xl font-bold text-[#FA812F]">No Routes Yet</h2>
+        <p class="text-[#FA812F] text-center">Create your first route to see it here.</p>
       </div>
-      <h2 class="text-2xl font-bold text-[#FA812F]">Coming Soon</h2>
-      <p class="text-[#FA812F] text-center">More features will be available here soon.</p>
-      <button class="mt-2 px-6 py-2 bg-[#FAB12F] text-white font-bold rounded-lg shadow text-lg cursor-not-allowed" disabled>Coming Soon</button>
-    </div>
+    }
   </div>
 </main>

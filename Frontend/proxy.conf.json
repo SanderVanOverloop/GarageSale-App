@@ -1,0 +1,24 @@
+{
+  "/api/nominatim/*": {
+    "target": "https://nominatim.openstreetmap.org",
+    "secure": true,
+    "changeOrigin": true,
+    "logLevel": "debug",
+    "pathRewrite": {
+      "^/api/nominatim": ""
+    },
+    "headers": {
+      "User-Agent": "GarageSaleApp/1.0 (your-email@example.com)"
+    }
+  },
+  "/api/osrm/*": {
+    "target": "https://router.project-osrm.org",
+    "secure": true,
+    "changeOrigin": true,
+    "logLevel": "debug",
+    "pathRewrite": {
+      "^/api/osrm": ""
+    }
+  }
+}
+

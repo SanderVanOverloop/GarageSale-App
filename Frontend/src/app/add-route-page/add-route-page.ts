@@ -1,21 +1,17 @@
 import { Component, AfterViewInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import * as L from 'leaflet';
 import Papa from 'papaparse';
-import {RouterLink} from '@angular/router';
 
 @Component({
   selector: 'app-add-route-page',
-  imports: [
-
-  ],
   templateUrl: './add-route-page.html',
   styleUrl: './add-route-page.css'
 })
 export class AddRoutePage implements AfterViewInit {
   private parsedRows: any[] = [];
   showBackModal = false;
-  constructor(private router: Router) {}
+  constructor(private router: Router, private route: ActivatedRoute) {}
 
   onBack(event: Event) {
     event.preventDefault();
@@ -43,6 +39,15 @@ export class AddRoutePage implements AfterViewInit {
       maxZoom: 19,
       attribution: '© OpenStreetMap'
     }).addTo(map);
+
+    // Check for route parameter to load saved route
+    this.route.queryParams.subscribe(params => {
+      if (params['routeId']) {
+        setTimeout(() => {
+          this.loadRouteFromLocalStorage(params['routeId']);
+        }, 100);
+      }
+    });
 
     const input = document.getElementById('csvFileInput') as HTMLInputElement;
     input.addEventListener('change', (event: any) => {
@@ -78,7 +83,7 @@ export class AddRoutePage implements AfterViewInit {
         return;
       }
       // Geocode starting point
-      const startGeoUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(startAddress)}`;
+      const startGeoUrl = `/api/nominatim/search?format=json&q=${encodeURIComponent(startAddress)}`;
       const startGeoRes = await fetch(startGeoUrl);
       const startGeoData = await startGeoRes.json();
       if (!startGeoData || startGeoData.length === 0) {
@@ -103,7 +108,7 @@ export class AddRoutePage implements AfterViewInit {
           row['Country']
         ].filter(Boolean).join(', ');
         if (!address) continue;
-        const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`;
+        const url = `/api/nominatim/search?format=json&q=${encodeURIComponent(address)}`;
         try {
           const response = await fetch(url);
           const data = await response.json();
@@ -175,6 +180,50 @@ export class AddRoutePage implements AfterViewInit {
         html += '</ol>';
         overviewDiv.innerHTML = html;
       }
+
+      // Save route to localStorage
+      this.saveRouteToLocalStorage(startAddress, this.parsedRows, routeOrder);
     });
+  }
+
+  private saveRouteToLocalStorage(startAddress: string, csvData: any[], routeOrder: any[]) {
+    const route = {
+      id: Date.now().toString(),
+      name: `Route from ${startAddress}`,
+      startAddress: startAddress,
+      csvData: csvData,
+      routeOrder: routeOrder,
+      createdAt: new Date().toISOString()
+    };
+
+    const existingRoutes = this.getSavedRoutes();
+    existingRoutes.push(route);
+    localStorage.setItem('garageRoutes', JSON.stringify(existingRoutes));
+  }
+
+  private getSavedRoutes(): any[] {
+    const routes = localStorage.getItem('garageRoutes');
+    return routes ? JSON.parse(routes) : [];
+  }
+
+  loadRouteFromLocalStorage(routeId: string) {
+    const routes = this.getSavedRoutes();
+    const route = routes.find(r => r.id === routeId);
+    if (route) {
+      // Fill in the start address
+      const startInput = document.getElementById('startPointInput') as HTMLInputElement;
+      if (startInput) {
+        startInput.value = route.startAddress;
+      }
+
+      // Set the parsed rows data
+      this.parsedRows = route.csvData;
+
+      // Optionally trigger the route display
+      const showRouteBtn = document.getElementById('showRouteBtn') as HTMLButtonElement;
+      if (showRouteBtn) {
+        showRouteBtn.click();
+      }
+    }
   }
 }
