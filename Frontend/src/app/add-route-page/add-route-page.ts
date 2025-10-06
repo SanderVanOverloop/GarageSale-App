@@ -1,15 +1,41 @@
 import { Component, AfterViewInit } from '@angular/core';
+import { Router } from '@angular/router';
 import * as L from 'leaflet';
 import Papa from 'papaparse';
+import {RouterLink} from '@angular/router';
 
 @Component({
   selector: 'app-add-route-page',
-  imports: [],
+  imports: [
+
+  ],
   templateUrl: './add-route-page.html',
   styleUrl: './add-route-page.css'
 })
 export class AddRoutePage implements AfterViewInit {
   private parsedRows: any[] = [];
+  showBackModal = false;
+  constructor(private router: Router) {}
+
+  onBack(event: Event) {
+    event.preventDefault();
+    const startInput = (document.getElementById('startPointInput') as HTMLInputElement)?.value.trim();
+    const fileInput = (document.getElementById('csvFileInput') as HTMLInputElement)?.value.trim();
+    if (startInput || fileInput) {
+      this.showBackModal = true;
+    } else {
+      this.router.navigate(['/']);
+    }
+  }
+
+  confirmBack() {
+    this.showBackModal = false;
+    this.router.navigate(['/']);
+  }
+
+  cancelBack() {
+    this.showBackModal = false;
+  }
 
   ngAfterViewInit() {
     const map = L.map('map').setView([51.1657, 10.4515], 5);
