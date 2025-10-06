@@ -11,6 +11,7 @@ import Papa from 'papaparse';
 export class AddRoutePage implements AfterViewInit {
   private parsedRows: any[] = [];
   showBackModal = false;
+  private currentRouteData: any = null; // Store current route data for saving
   constructor(private router: Router, private route: ActivatedRoute) {}
 
   onBack(event: Event) {
@@ -181,18 +182,68 @@ export class AddRoutePage implements AfterViewInit {
         overviewDiv.innerHTML = html;
       }
 
-      // Save route to localStorage
-      this.saveRouteToLocalStorage(startAddress, this.parsedRows, routeOrder);
+      // Store current route data for potential saving (don't auto-save)
+      this.currentRouteData = {
+        startAddress: startAddress,
+        csvData: this.parsedRows,
+        routeOrder: routeOrder
+      };
+
+      // Enable the Add Route button now that we have route data
+      const addRouteBtn = document.getElementById('addRouteBtn') as HTMLButtonElement;
+      if (addRouteBtn) {
+        addRouteBtn.disabled = false;
+      }
     });
+
+    // Add Route button functionality - separate from showing the route
+    setTimeout(() => {
+      const addRouteBtn = document.getElementById('addRouteBtn') as HTMLButtonElement;
+      if (addRouteBtn) {
+        addRouteBtn.addEventListener('click', () => {
+          if (this.currentRouteData) {
+            this.saveRouteToLocalStorage(
+              this.currentRouteData.startAddress,
+              this.currentRouteData.csvData,
+              this.currentRouteData.routeOrder
+            );
+
+            // Show confirmation message
+            alert('Route saved to your collection!');
+
+            // Disable the button to prevent duplicate saves
+            addRouteBtn.disabled = true;
+            addRouteBtn.textContent = 'Route Added ✓';
+
+            // Re-enable and reset text after 3 seconds
+            setTimeout(() => {
+              addRouteBtn.disabled = false;
+              addRouteBtn.textContent = 'Add Route to Collection';
+            }, 3000);
+          } else {
+            alert('Please show a route on the map first before adding it to your collection.');
+          }
+        });
+      }
+    }, 100);
   }
 
   private saveRouteToLocalStorage(startAddress: string, csvData: any[], routeOrder: any[]) {
+    // Clean the routeOrder data by removing circular references (markers)
+    const cleanRouteOrder = routeOrder.map(item => ({
+      address: item.address,
+      lat: item.lat,
+      lon: item.lon,
+      row: item.row
+      // Exclude 'marker' property as it contains circular references
+    }));
+
     const route = {
       id: Date.now().toString(),
       name: `Route from ${startAddress}`,
       startAddress: startAddress,
       csvData: csvData,
-      routeOrder: routeOrder,
+      routeOrder: cleanRouteOrder,
       createdAt: new Date().toISOString()
     };
 
